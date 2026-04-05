@@ -6,7 +6,6 @@ on:
       - '**.yaml'
   pull_request:
 
-# This forces the runner to use Node 24 for all actions
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -15,27 +14,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        # Updated to v5 (or latest available in 2026)
         uses: actions/checkout@v5
 
       - name: Set up Python
-        # Updated to v6 (or latest available in 2026)
         uses: actions/setup-python@v6
         with:
-          python-version: '3.12' # Moving to 3.12 is also recommended for 2026
+          python-version: '3.12'
 
       - name: Install ESPHome
         run: pip install esphome
 
-      - name: Validate ESPHome Config
+      - name: Auto-generate Secrets and Validate
         run: |
-          if [ ! -f secrets.yaml ]; then
-            echo "wifi_ssid: dummy" > secrets.yaml
-            echo "wifi_password: dummy" >> secrets.yaml
-          fi
+          # 1. Search all YAML files for "!secret <keyname>"
+          # 2. Extract the keyname
+          # 3. Format it as "keyname: dummy"
+          # 4. Save to secrets.yaml
           
+          echo "--- Generating dummy secrets.yaml ---"
+          grep -rh "!secret" . \
+            --exclude="secrets.yaml" \
+            --exclude-dir=".git" \
+            --exclude-dir=".github" | \
+            sed 's/.*!secret //' | \
+            awk '{print $1 ": dummy"}' | \
+            sort -u > secrets.yaml
+          
+          echo "Generated keys:"
+          cat secrets.yaml
+          echo "-------------------------------------"
+          
+          # Run validation on all top-level ESPHome configs
           for f in *.yaml; do
             if [[ "$f" != "secrets.yaml" ]]; then
+              echo "Validating $f..."
               esphome config "$f"
             fi
           done
