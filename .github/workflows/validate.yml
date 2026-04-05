@@ -1,0 +1,38 @@
+name: ESPHome Validate
+
+on:
+  push:
+    paths:
+      - '**.yaml'
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install ESPHome
+        run: pip install esphome
+
+      - name: Validate ESPHome Config
+        run: |
+          # Create a dummy secrets.yaml so the check doesn't fail
+          if [ ! -f secrets.yaml ]; then
+            echo "ssid: dummy" > secrets.yaml
+            echo "password: dummy" >> secrets.yaml
+          fi
+          
+          # Run the config check on all .yaml files in the root
+          # Replace *.yaml with your specific file if needed
+          for f in *.yaml; do
+            if [[ "$f" != "secrets.yaml" ]]; then
+              esphome config "$f"
+            fi
+          done
