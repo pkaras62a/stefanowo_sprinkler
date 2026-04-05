@@ -6,31 +6,34 @@ on:
       - '**.yaml'
   pull_request:
 
+# This forces the runner to use Node 24 for all actions
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        # Updated to v5 (or latest available in 2026)
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        # Updated to v6 (or latest available in 2026)
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.12' # Moving to 3.12 is also recommended for 2026
 
       - name: Install ESPHome
         run: pip install esphome
 
       - name: Validate ESPHome Config
         run: |
-          # Create a dummy secrets.yaml so the check doesn't fail
           if [ ! -f secrets.yaml ]; then
             echo "ssid: dummy" > secrets.yaml
             echo "password: dummy" >> secrets.yaml
           fi
           
-          # Run the config check on all .yaml files in the root
-          # Replace *.yaml with your specific file if needed
           for f in *.yaml; do
             if [[ "$f" != "secrets.yaml" ]]; then
               esphome config "$f"
