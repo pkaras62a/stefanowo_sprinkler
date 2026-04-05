@@ -1,0 +1,48 @@
+esphome:
+  name: sterowanie_podlewania
+
+esp32:
+  variant: esp32
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+# If you want to connect with HA, you need to enable API.
+api:
+
+# If you want to use OTA updates, you need to enable OTA.
+ota:
+  - platform: esphome
+
+# LED exposed as binary light
+output:
+  - platform: gpio
+    pin: GPIO23
+    id: output_led
+
+light:
+  - platform: binary
+    id: light_led
+    name: LED
+    output: output_led
+
+# Relays exposed as switches
+switch:
+  - platform: gpio
+    pin: GPIO16
+    id: nawadnianie_pompa
+    name: Zasilanie pompy
+
+  - platform: gpio
+    pin: GPIO17
+    id: relay_2
+    name: Relay 2
+
+sprinkler:
+  - id: sprinkler_ctrlr
+    main_switch: "Nawadnianie"
+    valves:
+      - valve_switch: "Pompa"
+        run_duration: 1800s
+        valve_switch_id: nawadnianie_pompa
