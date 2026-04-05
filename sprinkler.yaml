@@ -30,14 +30,15 @@ light:
 # Relays exposed as switches
 switch:
   - platform: gpio
+#numer pin zależy od płytki
     pin: GPIO16
     id: nawadnianie_pompa
     name: Zasilanie pompy
 
-  - platform: gpio
-    pin: GPIO17
-    id: relay_2
-    name: Relay 2
+  # - platform: gpio
+  #   pin: GPIO17
+  #   id: relay_2
+  #   name: Relay 2
 
 sprinkler:
   - id: nawadnianie
@@ -55,3 +56,13 @@ time:
       - hours: 2
         then: 
           - sprinkler.start_full_cycle: nawadnianie
+
+#można dodać jeszcze przycisk fizyczny w kotłowni do ręcznego odpalania:
+binary_sensor:
+  - platform: gpio
+#numer pin zależy od płytki
+    pin: GPIO5
+    name: "Włącz nawadnianie"
+    on_press:
+      then:
+        - sprinkler.start_full_cycle: nawadnianie
