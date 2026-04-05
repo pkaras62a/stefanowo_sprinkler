@@ -45,6 +45,7 @@ sprinkler:
     main_switch: "Nawadnianie"
     valves:
       - valve_switch: "Pompa"
+      # czas trwania nawadniania
         run_duration: 1800s
         valve_switch_id: nawadnianie_pompa
 
