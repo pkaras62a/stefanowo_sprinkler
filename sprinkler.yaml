@@ -42,7 +42,7 @@ switch:
 
 sprinkler:
   - id: nawadnianie
-    main_switch: "Nawadnianie"
+    # main_switch: "Nawadnianie"
     valves:
     # przekaźnik pompy jako zawór
       - valve_switch: "Pompa"
