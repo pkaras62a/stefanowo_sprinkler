@@ -37,7 +37,7 @@ jobs:
             --exclude-dir=".git" \
             --exclude-dir=".github" | \
             sed 's/.*!secret //' | \
-            awk '{print $1 ": dummy"}' | \
+            awk '{print $1 ": dummy12345"}' | \
             sort -u > secrets.yaml
           
           echo "Generated keys:"
