@@ -30,8 +30,8 @@ jobs:
       - name: Validate ESPHome Config
         run: |
           if [ ! -f secrets.yaml ]; then
-            echo "ssid: dummy" > secrets.yaml
-            echo "password: dummy" >> secrets.yaml
+            echo "wifi_ssid: dummy" > secrets.yaml
+            echo "wifi_password: dummy" >> secrets.yaml
           fi
           
           for f in *.yaml; do
