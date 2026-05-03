@@ -121,7 +121,7 @@ switch:
 binary_sensor:
   - platform: gpio
   #input 1
-    name: "nawadnianie_przycisk"
+    #name: "nawadnianie_przycisk"
     pin:
       pcf8574: pcf8574_hub_in_1
       number: 0
