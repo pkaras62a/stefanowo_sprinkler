@@ -8,12 +8,16 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
-# If you want to connect with HA, you need to enable API.
+#API do Home Assistant
 api:
 
-# If you want to use OTA updates, you need to enable OTA.
+#update zdalny
 ota:
   - platform: esphome
+
+#dostęp po www
+web_server:
+  port: 80
 
 # LED exposed as binary light
 output:
@@ -21,34 +25,204 @@ output:
     pin: GPIO23
     id: output_led
 
+i2c:
+  sda: 4
+  scl: 5
+  scan: true
+  id: bus_a
+
 light:
   - platform: binary
     id: light_led
     name: LED
     output: output_led
 
-# Relays exposed as switches
+pcf8574:
+  - id: "pcf8574_hub_out_1" # for output channel 1-8
+    address: 0x24
+
+  - id: "pcf8574_hub_in_1" # for input channel 1-8
+    address: 0x22
+
+# Individual outputs
 switch:
   - platform: gpio
-#numer pin zależy od płytki
-    pin: GPIO16
-    id: nawadnianie_pompa
-    name: Zasilanie pompy
+  #relay 1: pompa 
+  #230 V
+    name: "pompa"
+    pin:
+      pcf8574: pcf8574_hub_out_1
+      number: 0
+      mode: OUTPUT
+      inverted: true
 
-  # - platform: gpio
-  #   pin: GPIO17
-  #   id: relay_2
-  #   name: Relay 2
+  - platform: gpio
+  #relay 2: katalpy, miskany i skrzynia
+  #24V
+    name: "zawor1"
+    pin:
+      pcf8574: pcf8574_hub_out_1
+      number: 1
+      mode: OUTPUT
+      inverted: true
+
+  - platform: gpio
+  #relay 3: tuje
+  #24V
+    name: "zawor2"
+    pin:
+      pcf8574: pcf8574_hub_out_1
+      number: 2
+      mode: OUTPUT
+      inverted: true
+
+  - platform: gpio
+  #relay 4: hałda
+  #24V
+    name: "zawor3"
+    pin:
+      pcf8574: pcf8574_hub_out_1
+      number: 3
+      mode: OUTPUT
+      inverted: true
+
+  - platform: gpio
+    name: "relay5"
+    pin:
+      pcf8574: pcf8574_hub_out_1
+      number: 4
+      mode: OUTPUT
+      inverted: true
+
+  - platform: gpio
+    name: "relay6"
+    pin:
+      pcf8574: pcf8574_hub_out_1
+      number: 5
+      mode: OUTPUT
+      inverted: true
+
+  - platform: gpio
+    name: "relay7"
+    pin:
+      pcf8574: pcf8574_hub_out_1
+      number: 6
+      mode: OUTPUT
+      inverted: true
+
+  - platform: gpio
+    name: "relay8"
+    pin:
+      pcf8574: pcf8574_hub_out_1
+      number: 7
+      mode: OUTPUT
+      inverted: true
+
+binary_sensor:
+  - platform: gpio
+  #input 1
+    name: "nawadnianie_przycisk"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 0
+      mode: INPUT
+      inverted: true
+        name: "Włącz nawadnianie"
+    on_press:
+      then:
+        - sprinkler.start_full_cycle: nawadnianie
+
+  - platform: gpio
+    name: "input2"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 1
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "input3"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 2
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "input4"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 3
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "input5"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 4
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "input6"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 5
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "input7"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 6
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "input8"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 7
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "s3"
+    pin:
+      number: 32
+      inverted: true
+
+  - platform: gpio
+    name: "s4"
+    pin:
+      number: 33
+      inverted: true
 
 sprinkler:
   - id: nawadnianie
-    # main_switch: "Nawadnianie"
+    main_switch: "Nawadnianie"
+    valve_overlap: 3s
+    pump_start_pump_delay: 3s
+    pump_stop_valve_delay: 3s
+    auto_advance_switch: "Normalny cykl"
     valves:
-    # przekaźnik pompy jako zawór
-      - valve_switch: "Pompa"
-      # czas trwania nawadniania
-        run_duration: 1800s
-        valve_switch_id: nawadnianie_pompa
+      - valve_switch: "Rośliny"
+        enable_switch: "Podlewaj rośliny"
+        run_duration: 15min
+        valve_switch_id: zawor1
+        pump_switch_id: pompa   
+      - valve_switch: "Tuje"
+        enable_switch: "Podlewaj tuje"
+        run_duration: 40min
+        valve_switch_id: zawor2
+        pump_switch_id: pompa   
+      - valve_switch: "Hałda"
+        enable_switch: "Podlewaj hałdę"
+        run_duration: 40min
+        valve_switch_id: zawor3
+        pump_switch_id: pompa   
 
 time:
   - platform: sntp
@@ -60,11 +234,5 @@ time:
           - sprinkler.start_full_cycle: nawadnianie
 
 #można dodać jeszcze przycisk fizyczny w kotłowni do ręcznego odpalania:
-binary_sensor:
-  - platform: gpio
-#numer pin zależy od płytki
-    pin: GPIO5
-    name: "Włącz nawadnianie"
-    on_press:
-      then:
-        - sprinkler.start_full_cycle: nawadnianie
+
+
