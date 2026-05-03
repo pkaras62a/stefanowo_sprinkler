@@ -127,7 +127,7 @@ binary_sensor:
       number: 0
       mode: INPUT
       inverted: true
-        name: "Włącz nawadnianie"
+    name: "Włącz nawadnianie"
     on_press:
       then:
         - sprinkler.start_full_cycle: nawadnianie
